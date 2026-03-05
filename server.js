@@ -20,6 +20,12 @@ app.use(session({
   }
 }));
 
+// Request logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
