@@ -49,20 +49,25 @@ app.get('/api/me', (req, res) => {
 
 // ── Chat Routes ──
 
-app.post('/api/chat', requireAuth, async (req, res) => {
+// Start a chat job (returns immediately with jobId)
+app.post('/api/chat', requireAuth, (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  try {
-    const sessionId = req.session.id;
-    const results = await claudeAgent.chat(sessionId, message);
-    res.json({ results });
-  } catch (err) {
-    console.error('[Chat Error]', err);
-    res.status(500).json({ error: 'Failed to process your request. Please try again.' });
+  const sessionId = req.session.id;
+  const jobId = claudeAgent.startJob(sessionId, message);
+  res.json({ jobId });
+});
+
+// Poll for job result
+app.get('/api/chat/status/:jobId', requireAuth, (req, res) => {
+  const job = claudeAgent.getJobStatus(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ error: 'Job not found' });
   }
+  res.json(job);
 });
 
 app.post('/api/chat/clear', requireAuth, (req, res) => {

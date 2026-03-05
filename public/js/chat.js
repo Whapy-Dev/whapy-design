@@ -44,19 +44,16 @@ async function sendMessage() {
   chatInput.value = '';
   chatInput.style.height = 'auto';
 
-  // Hide welcome
   if (welcomeSection) {
     welcomeSection.style.display = 'none';
   }
 
-  // Add user message
   addMessage(text, 'out');
-
-  // Show typing
   showTyping(true);
   statusText.textContent = 'Diseñando...';
 
   try {
+    // Start the job
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,24 +69,89 @@ async function sendMessage() {
 
     if (data.error) {
       addMessage(data.error, 'in');
-    } else if (data.results) {
-      for (const result of data.results) {
-        if (result.type === 'text' && result.content) {
-          addMessage(result.content, 'in');
-        } else if (result.type === 'screenshot') {
-          addScreenshot(result.url, result.id);
-        }
-      }
+      showTyping(false);
+      statusText.textContent = 'Online';
+      sending = false;
+      sendBtn.disabled = false;
+      return;
     }
+
+    // Poll for result
+    const jobId = data.jobId;
+    pollJob(jobId);
+
   } catch (err) {
     addMessage('Error de conexión. Intenta de nuevo.', 'in');
-  } finally {
     showTyping(false);
     statusText.textContent = 'Online';
     sending = false;
     sendBtn.disabled = false;
-    chatInput.focus();
   }
+}
+
+// ── Poll for job completion ──
+async function pollJob(jobId) {
+  const POLL_INTERVAL = 3000; // 3 seconds
+  const MAX_POLLS = 200; // 10 minutes max
+  let polls = 0;
+
+  const poll = async () => {
+    polls++;
+    if (polls > MAX_POLLS) {
+      addMessage('La generación tardó demasiado. Intenta con algo más simple.', 'in');
+      finishSending();
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/chat/status/${jobId}`);
+
+      if (res.status === 401) {
+        window.location.href = '/';
+        return;
+      }
+
+      const job = await res.json();
+
+      if (job.status === 'processing') {
+        // Update status with elapsed time
+        const elapsed = Math.floor(polls * POLL_INTERVAL / 1000);
+        statusText.textContent = `Diseñando... (${elapsed}s)`;
+        setTimeout(poll, POLL_INTERVAL);
+        return;
+      }
+
+      if (job.status === 'error') {
+        addMessage(job.error || 'Error al generar el diseño.', 'in');
+        finishSending();
+        return;
+      }
+
+      if (job.status === 'done' && job.results) {
+        for (const result of job.results) {
+          if (result.type === 'text' && result.content) {
+            addMessage(result.content, 'in');
+          } else if (result.type === 'screenshot') {
+            addScreenshot(result.url, result.id);
+          }
+        }
+        finishSending();
+      }
+    } catch (err) {
+      // Network error, retry
+      setTimeout(poll, POLL_INTERVAL);
+    }
+  };
+
+  poll();
+}
+
+function finishSending() {
+  showTyping(false);
+  statusText.textContent = 'Online';
+  sending = false;
+  sendBtn.disabled = false;
+  chatInput.focus();
 }
 
 // ── Add message bubble ──
@@ -180,7 +242,6 @@ async function clearChat() {
   try {
     await fetch('/api/chat/clear', { method: 'POST' });
   } catch (_) {}
-  // Remove all messages except welcome and typing
   const messages = chatMessages.querySelectorAll('.message');
   messages.forEach(m => m.remove());
   if (welcomeSection) {
