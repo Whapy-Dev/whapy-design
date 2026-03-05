@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Whapy Design Studio</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <h1>Whapy Design</h1>
+        <p>AI-Powered Design Studio</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="tu@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Tu contraseña" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary" id="loginBtn">Iniciar Sesión</button>
+        <div class="login-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Check if already logged in
+    fetch('/api/me').then(r => {
+      if (r.ok) window.location.href = '/chat';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const errorEl = document.getElementById('loginError');
+
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+      errorEl.textContent = '';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = '/chat';
+        } else {
+          errorEl.textContent = data.error || 'Credenciales inválidas';
+        }
+      } catch (err) {
+        errorEl.textContent = 'Error de conexión';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Iniciar Sesión';
+      }
+    });
+  </script>
+</body>
+</html>

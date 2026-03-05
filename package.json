@@ -1,0 +1,17 @@
+{
+  "name": "whapy-design-studio",
+  "version": "1.0.0",
+  "description": "Whapy Design Studio - AI-powered design generation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "uuid": "^10.0.0"
+  }
+}

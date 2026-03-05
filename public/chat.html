@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Whapy Design Studio</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">W</div>
+        <div class="chat-header-info">
+          <h2>Whapy Design</h2>
+          <p id="statusText">Online</p>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="btn-icon" onclick="clearChat()" title="Nueva conversación">&#x1f5d1;</button>
+        <button class="btn-icon" onclick="logout()" title="Cerrar sesión">&#x23fb;</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="welcome-section" id="welcomeSection">
+        <h3>Bienvenido a Whapy Design</h3>
+        <p>Describe lo que quieres diseñar y lo crearemos para ti.</p>
+        <div class="suggestions">
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Diseña un dashboard para logística</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Crea una landing page para una cafetería</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Diseña una app móvil de fitness</button>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <textarea
+          class="chat-input"
+          id="chatInput"
+          placeholder="Describe tu diseño..."
+          rows="1"
+        ></textarea>
+        <button class="btn-send" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close">&times;</button>
+    <img id="lightboxImg" src="" alt="Screenshot">
+  </div>
+
+  <script src="/js/chat.js"></script>
+</body>
+</html>
