@@ -97,8 +97,8 @@ async function start() {
     await claudeAgent.initialize();
     console.log('[Server] Claude agent initialized with Pencil MCP');
   } catch (err) {
-    console.warn('[Server] Could not connect to Pencil MCP:', err.message);
-    console.warn('[Server] Starting without Pencil connection (will retry on first request)');
+    console.warn('[Server] Claude CLI not available:', err.message);
+    console.warn('[Server] Starting anyway (claude CLI needed for chat to work)');
   }
 
   app.listen(PORT, '0.0.0.0', () => {

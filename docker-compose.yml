@@ -6,8 +6,6 @@ services:
     ports:
       - "3030:3030"
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - PENCIL_MCP_PATH=${PENCIL_MCP_PATH:-pencil-mcp}
       - SESSION_SECRET=${SESSION_SECRET:-whapy-design-secret-2024}
     volumes:
       - design-data:/opt/whapy-design/data/screenshots
